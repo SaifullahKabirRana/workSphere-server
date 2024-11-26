@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 const app = express();
 
@@ -38,6 +38,28 @@ async function run() {
             res.send(result)
         })
 
+        // get a single job data from db using job id
+        app.get('/job/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await jobsCollection.findOne(query);
+            res.send(result);
+        })
+        
+        // save a bid data in db
+        app.post('/bid', async (req, res) => {
+            const bidData = req.body;
+            console.log(bidData);
+            const result = await bidsCollection.insertOne(bidData);
+            res.send(result)
+        })
+
+        // save a job data in db
+        app.post('/job', async (req, res) => {
+            const jobData = req.body;
+            const result = await jobsCollection.insertOne(jobData);
+            res.send(result)
+        })
 
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
