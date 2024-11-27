@@ -45,7 +45,7 @@ async function run() {
             const result = await jobsCollection.findOne(query);
             res.send(result);
         })
-        
+
         // save a bid data in db
         app.post('/bid', async (req, res) => {
             const bidData = req.body;
@@ -59,6 +59,16 @@ async function run() {
             const jobData = req.body;
             const result = await jobsCollection.insertOne(jobData);
             res.send(result)
+        })
+
+        // get all job posted by a specific user 
+        app.get('/jobs/:email', async (req, res) => {
+            const email = req.params.email;
+            console.log('email:',email);
+            const query = { 'buyer.email': email };
+            const result = await jobsCollection.find(query).toArray();
+            res.send(result);
+
         })
 
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
