@@ -7,7 +7,7 @@ const app = express();
 
 // middleware
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://work-sphere.vercel.app'],
     credentials: true,
     optionSuccessStatus: 200,
 }
@@ -103,7 +103,7 @@ run().catch(console.dir);
 
 
 app.get('/', async (req, res) => {
-    res.send('Hello from workSphere Server...')
+    res.send('WorkSphere Server is running...')
 })
 
 app.listen(port, () => {
