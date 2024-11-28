@@ -77,6 +77,22 @@ async function run() {
             res.send(result);
         })
 
+        //update a job data in db
+        app.put('/job/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateData = req.body;
+            const query = { _id: new ObjectId(id)};
+            const options = {upsert: true};
+            const updateDoc = {
+                $set: {
+                    ...updateData
+                }
+            }
+            const result = await jobsCollection.updateOne(query, updateDoc, options);
+            res.send(result);
+            
+        })
+
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
