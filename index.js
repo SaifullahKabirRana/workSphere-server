@@ -7,7 +7,7 @@ const app = express();
 
 // middleware
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://work-sphere.vercel.app'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://work-sphere.vercel.app', 'https://worksphere-8802e.web.ap  p'],
     credentials: true,
     optionSuccessStatus: 200,
 }
@@ -81,8 +81,8 @@ async function run() {
         app.put('/job/:id', async (req, res) => {
             const id = req.params.id;
             const updateData = req.body;
-            const query = { _id: new ObjectId(id)};
-            const options = {upsert: true};
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
             const updateDoc = {
                 $set: {
                     ...updateData
@@ -90,6 +90,25 @@ async function run() {
             }
             const result = await jobsCollection.updateOne(query, updateDoc, options);
             res.send(result);
+
+        })
+
+        // get all bids for a user by email from db
+        app.get('/my-bids/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const result = await bidsCollection.find(query).toArray();
+            res.send(result);
+
+        })
+        
+        // get all bid requests from db for job owner
+        app.get('/bid-requests/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { 'buyer.email': email}
+            const result = await bidsCollection.find(query).toArray();
+            res.send(result);
+            console.log(result);
             
         })
 
