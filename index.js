@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
@@ -31,6 +33,23 @@ async function run() {
 
         const jobsCollection = client.db('workSphere').collection('jobs');
         const bidsCollection = client.db('workSphere').collection('bids');
+
+        // jwt generate 
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            console.log("Dynamic token for this user ---->", user);
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '365d'
+            })
+            res.
+                cookie('token', token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+                })
+                .send({ success: true });
+
+        })
 
         // get all jobs data from db 
         app.get('/jobs', async (req, res) => {
@@ -108,7 +127,6 @@ async function run() {
             const query = { 'buyer.email': email }
             const result = await bidsCollection.find(query).toArray();
             res.send(result);
-            console.log(result);
 
         })
 
