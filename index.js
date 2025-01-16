@@ -37,7 +37,7 @@ async function run() {
         // jwt generate 
         app.post('/jwt', async (req, res) => {
             const user = req.body;
-            console.log("Dynamic token for this user ---->", user);
+            // console.log("Dynamic token for this user ---->", user);
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
                 expiresIn: '365d'
             })
@@ -49,6 +49,19 @@ async function run() {
                 })
                 .send({ success: true });
 
+        })
+
+        // Clear token on logout 
+        app.get('/logout', (req, res) => {
+            res
+                .clearCookie('token', {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+                    maxAge: 0
+
+                })
+                .send({ success: true });
         })
 
         // get all jobs data from db 
