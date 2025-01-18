@@ -19,7 +19,7 @@ app.use(cookieParser());
 
 // verify jwt middleware
 const verifyToken = (req, res, next) => {
-    const token = req.cookies?.token;
+    const token = req?.cookies?.token;
     if (!token) return res.status(401).send({ message: "unauthorized access" });
     if (token) {
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
@@ -100,7 +100,19 @@ async function run() {
         // save a bid data in db
         app.post('/bid', async (req, res) => {
             const bidData = req.body;
-            console.log(bidData);
+
+            // check if its a duplicate request
+            const query = {
+                email: bidData.email,
+                jobId: bidData.jobId
+            }
+            const alreadyApplied = await bidsCollection.findOne(query);
+            if (alreadyApplied) {
+                return res
+                    .status(400)
+                    .send('You have already placed a bid on this job.')
+           }
+
             const result = await bidsCollection.insertOne(bidData);
             res.send(result)
         })
@@ -116,8 +128,8 @@ async function run() {
         app.get('/jobs/:email', verifyToken, async (req, res) => {
             const tokenEmail = req.user?.email;
             const email = req.params.email;
-            if(tokenEmail !== email ){
-                return  res.status(403).send({message: "forbidden access"})
+            if (tokenEmail !== email) {
+                return res.status(403).send({ message: "forbidden access" })
             }
             const query = { 'buyer.email': email };
             const result = await jobsCollection.find(query).toArray();
@@ -133,7 +145,7 @@ async function run() {
         })
 
         //update a job data in db
-        app.put('/job/:id',  async (req, res) => {
+        app.put('/job/:id', async (req, res) => {
             const id = req.params.id;
             const updateData = req.body;
             const query = { _id: new ObjectId(id) };
@@ -152,8 +164,8 @@ async function run() {
         app.get('/my-bids/:email', verifyToken, async (req, res) => {
             const tokenEmail = req.user?.email;
             const email = req.params.email;
-            if(tokenEmail !== email ){
-                return  res.status(403).send({message: "forbidden access"})
+            if (tokenEmail !== email) {
+                return res.status(403).send({ message: "forbidden access" })
             }
             // const email = req.params.email;
             const query = { email };
@@ -166,8 +178,8 @@ async function run() {
         app.get('/bid-requests/:email', verifyToken, async (req, res) => {
             const tokenEmail = req.user?.email;
             const email = req.params.email;
-            if(tokenEmail !== email ){
-                return  res.status(403).send({message: "forbidden access"})
+            if (tokenEmail !== email) {
+                return res.status(403).send({ message: "forbidden access" })
             }
             // const email = req.params.email;
             const query = { 'buyer.email': email }
