@@ -110,8 +110,8 @@ async function run() {
             if (alreadyApplied) {
                 return res
                     .status(400)
-                    .send('You have already placed a bid on this job.')
-           }
+                    .send('You have already placed a bid on this job')
+            }
 
             const result = await bidsCollection.insertOne(bidData);
             res.send(result)
@@ -198,6 +198,25 @@ async function run() {
             };
             const result = await bidsCollection.updateOne(query, updateDoc);
             res.send(result);
+        })
+
+        // get all jobs data from db for pagination 
+        app.get('/all-jobs', async (req, res) => {
+            const size = parseInt(req.query.size);
+            const page = parseInt(req.query.page) - 1;
+            
+            const result = await jobsCollection
+                .find()
+                .skip(page * size)
+                .limit(size)
+                .toArray();
+            res.send(result)
+        })
+
+        // get all jobs data count from db 
+        app.get('/jobs-count', async (req, res) => {
+            const count = await jobsCollection.countDocuments();
+            res.send({ count });
         })
 
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
