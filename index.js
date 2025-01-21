@@ -9,7 +9,7 @@ const app = express();
 
 // middleware
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://work-sphere.vercel.app', 'https://worksphere-8802e.web.ap  p'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://work-sphere.vercel.app', 'https://worksphere-8802e.web.app'],
     credentials: true,
     optionSuccessStatus: 200,
 }
@@ -114,6 +114,14 @@ async function run() {
             }
 
             const result = await bidsCollection.insertOne(bidData);
+
+            // Update bid count in jobs collection
+            const updateDoc = {
+                $inc: { bid_count: 1 }
+            }
+            const jobQuery = { _id: new ObjectId(bidData.jobId) }
+            const updateBidCount = await jobsCollection.updateOne(jobQuery, updateDoc)
+            console.log(updateBidCount, 'bid count');
             res.send(result)
         })
 
@@ -209,7 +217,7 @@ async function run() {
             const search = req.query.search;
 
             let query = {
-                job_title: { $regex: search, $options: 'i'}             
+                job_title: { $regex: search, $options: 'i' }
             }
             if (filter) {
                 query.category = filter
@@ -231,7 +239,7 @@ async function run() {
             const filter = req.query.filter;
             const search = req.query.search;
             let query = {
-                job_title: { $regex: search, $options: 'i'}
+                job_title: { $regex: search, $options: 'i' }
             }
             if (filter) {
                 // query = { category: filter }
